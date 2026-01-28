@@ -1,0 +1,68 @@
+# Compiled class files
+*.class
+
+# Log files
+*.log
+logs/
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# Test output
+test-output/
+screenshots/
+allure-results/
+allure-report/
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+.vscode/
+*.swp
+*.bak
+*~.nib
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Package Files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Sensitive data
+src/test/resources/config/config-local.properties
+**/credentials.properties
+
+# Allure
+.allure/
+
+# Reports
+*.html
+*.xml
+!pom.xml
+!testng.xml
+!testng-smoke.xml
+!log4j2.xml
+
+# Temporary files
+*.tmp
+*.temp
