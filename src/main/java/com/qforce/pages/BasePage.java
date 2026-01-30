@@ -148,7 +148,7 @@ public class BasePage {
     /**
      * Navigate to URL
      */
-    protected void navigateTo(String url) {
+    public void navigateTo(String url) {
         logger.info("Navigating to URL: {}", url);
         driver.get(url);
     }

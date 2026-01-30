@@ -66,6 +66,14 @@ public class ConfigReader {
     public static String getAdminPassword() {
         return getProperty("app.admin.password");
     }
+
+    public static String getUserUsername() {
+        return properties.getProperty("app.user.username");
+    }
+
+    public static String getUserPassword() {
+        return properties.getProperty("app.user.password");
+    }
     
     public static String getTestDataPath() {
         return getProperty("test.data.path");
