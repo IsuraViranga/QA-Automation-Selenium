@@ -13,10 +13,25 @@ import org.openqa.selenium.WebDriver;
 public class Hooks {
     
     private static final Logger logger = LogManager.getLogger(Hooks.class);
+
+    /**
+     * Detects whether the current scenario is an API test
+     * by checking if the scenario name contains "/api/"
+     */
+    private boolean isApiTest(Scenario scenario) {
+        return scenario.getName().contains("/api/");
+    }
     
     @Before
     public void setUp(Scenario scenario) {
         logger.info("========== Starting Scenario: {} ==========", scenario.getName());
+
+        // Skip WebDriver for API tests — they don't need a browser
+        if (isApiTest(scenario)) {
+            logger.info("API test detected — skipping WebDriver initialization");
+            return;
+        }
+
         DriverManager.initializeDriver();
     }
     
@@ -24,6 +39,12 @@ public class Hooks {
     public void tearDown(Scenario scenario) {
         logger.info("========== Finishing Scenario: {} - Status: {} ==========", 
                    scenario.getName(), scenario.getStatus());
+
+        // Skip driver teardown entirely for API tests
+        if (isApiTest(scenario)) {
+            logger.info("API test detected — skipping WebDriver teardown");
+            return;
+        }
         
         // Take screenshot if scenario failed
         if (scenario.isFailed()) {
