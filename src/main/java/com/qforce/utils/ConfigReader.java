@@ -83,7 +83,19 @@ public class ConfigReader {
         return getProperty("keyword.data.path");
     }
     
+    // public static String getApiBaseUrl() {
+    //     return getProperty("api.base.url");
+    // }
+
     public static String getApiBaseUrl() {
-        return getProperty("api.base.url");
+        return properties.getProperty("api.base.url");
+    }
+
+    public static String getApiBasePath() {
+        return properties.getProperty("api.base.path");
+    }
+
+    public static String getApiUrl() {
+        return getApiBaseUrl() + getApiBasePath();
     }
 }
