@@ -1,0 +1,311 @@
+TC_PLT_ADMIN_01,"Verify that admin can successfully add a new plant 
+with all valid details
+","This test verifies that an admin user can add a new plant by filling in all required fields (Plant Name, Category, Price, Quantity) with valid data and successfully save it to the system.",Admin is logged in and navigated to Add Plant page (/ui/plants/add),"1. Enter a valid plant name in the Plant Name field (e.g., ""Rose Red"")
+2. Select a valid sub-category from the Category dropdown (e.g., ""Flowering Plants"")
+3. Enter a valid price in the Price field (e.g., ""250.00"")
+4. Enter a valid quantity in the Quantity field (e.g., ""50"")
+5. Click the Save button
+","All valid inputs are accepted in their respective fields
+System successfully creates a new plant record
+User is redirected to Plants List page (URL: /ui/plants)
+Success message ""Plant added successfully."" is displayed
+Newly added plant appears in the plants table with correct Name, Category, Price, and Stock values",,UI,Not Executed,214003G
+"TC_PLT_ADMIN_02"," Verify that admin cannot add a plant 
+without selecting a category
+","This test verifies that the system validates mandatory category selection and prevents plant creation when category is not selected."," Admin is logged in and navigated to Add Plant page (/ui/plants/add)","Enter a valid plant name in the Plant Name field (e.g., ""Orchid White"")
+Leave the Category dropdown at default ""-- Select Sub Category --""
+Enter a valid price in the Price field (e.g., ""500.00"")
+Enter a valid quantity in the Quantity field (e.g., ""30"")
+Click the Save button","System prevents form submission
+Validation error message is displayed near Category field: ""Please select a category""
+Plant is not created in the system
+User remains on the Add Plant page
+All entered data is retained in the form fields",,UI,Not Executed,214003G
+" TC_PLT_ADMIN_03"," Verify that admin can view all plants 
+in the plants list page"," This test verifies that the admin can successfully navigate to the plants list page and view all existing plants with their details in a table format."," Admin is logged in and at least one plant exists in the system","Navigate to Plants List page (/ui/plants)
+Observe the page layout and table structure
+Verify the presence of search functionality
+Verify the presence of category filter dropdown
+Verify the presence of ""Add a Plant"" button","Plants List page loads successfully
+Page displays heading ""Plants""
+Search bar with placeholder ""Search plant"" is visible
+Category filter dropdown with ""All Categories"" default is visible
+""Search"" and ""Reset"" buttons are visible
+""Add a Plant"" button is visible in the top-right
+Table displays with columns: Name ↑, Category, Price, Stock, Actions
+All existing plants are listed in the table with correct data
+If no plants exist, ""No plants found"" message is displayed",,UI,Not Executed,214003G
+TC_PLT_ADMIN_04," Verify that admin can filter
+ plants by category",This test verifies that the admin can use the category dropdown filter to view plants belonging to a specific category.," Admin is logged in, navigated to Plants List page (/ui/plants), and multiple plants exist in different categories","Verify the Category dropdown displays ""All Categories"" by default
+Click on the Category dropdown
+Select a specific category (e.g., ""Flowering Plants"")
+Click the Search button
+Observe the filtered results in the table","Category dropdown opens and displays all available categories
+Selected category is displayed in the dropdown
+After clicking Search, only plants belonging to the selected category are displayed in the table
+Table updates without page refresh
+Other plants from different categories are not visible
+""No plants found"" message appears if no plants exist in the selected category",,UI,Not Executed,214003G
+ TC_PLT_ADMIN_05," Verify that admin can cancel adding 
+a plant and return to plants list
+","This test verifies that the admin can cancel the plant creation process and navigate back to the plants list page without saving data.","Admin is logged in and navigated to Add Plant page (/ui/plants/add)","Enter a valid plant name in the Plant Name field (e.g., ""Tulip Yellow"")
+Select a category from the Category dropdown
+Enter a valid price in the Price field (e.g., ""150.00"")
+Enter a valid quantity in the Quantity field (e.g., ""40"")
+Click the Cancel button","User is immediately redirected to Plants List page (/ui/plants)
+No plant record is created in the system
+Entered data is not saved
+No success or error messages are displayed
+Plants List page displays existing plants without the cancelled entry
+",,UI,Not Executed,214003G
+" TC_PLT_USER_01","Verify that user can view all plants
+ in the plants list page", This test verifies that a regular user can successfully navigate to the plants list page and view all existing plants with their details, User is logged in and at least one plant exists in the system,"Navigate to Plants List page (/ui/plants)
+Observe the page layout and table structure
+Verify the presence of search functionality
+Verify the presence of category filter dropdown
+Verify the absence of ""Add a Plant"" button","Plants List page loads successfully
+Page displays heading ""Plants""
+Search bar with placeholder ""Search plant"" is visible
+Category filter dropdown with ""All Categories"" default is visible
+""Search"" and ""Reset"" buttons are visible
+""Add a Plant"" button is NOT visible (user cannot add plants)
+Table displays with columns: Name ↑, Category, Price, Stock, Actions
+All existing plants are listed in the table with correct data
+Actions column is empty (no edit/delete buttons for user)
+If no plants exist, ""No plants found"" message is displayed",,UI,Not Executed,214003G
+TC_PLT_USER_02,Verify that user can search for plants by name,This test verifies that a regular user can use the search functionality to find plants by entering a plant name or partial name.,"User is logged in, navigated to Plants List page (/ui/plants), and multiple plants exist in the system","Enter a plant name or partial name in the Search plant field (e.g., ""Rose"")
+Click the Search button
+Observe the filtered results in the table
+Click the Reset button
+Observe the table after reset","Search field accepts text input
+After clicking Search, only plants matching the search criteria are displayed
+Table filters without full page refresh
+Matching plants show complete details (Name, Category, Price, Stock)
+""No plants found"" message appears if no matches exist
+After clicking Reset, all plants are displayed again
+Search field is cleared after reset",,UI,Not Executed,214003G
+TC_PLT_USER_03,Verify that user can filter plants by category, This test verifies that a regular user can use the category dropdown filter to view plants belonging to a specific category.,"User is logged in, navigated to Plants List page (/ui/plants), and multiple plants exist in different categories","Verify the Category dropdown displays ""All Categories"" by default
+Click on the Category dropdown
+Select a specific category (e.g., ""Succulents"")
+Click the Search button
+Observe the filtered results in the table","Category dropdown opens and displays all available categories
+Selected category is displayed in the dropdown
+After clicking Search, only plants belonging to the selected category are displayed in the table
+Table updates without page refresh
+Other plants from different categories are not visible
+""No plants found"" message appears if no plants exist in the selected category
+User can still perform search by name within filtered category results",,UI,Not Executed,214003G
+TC_PLT_USER_04,Verify that user can reset filters to view all plants,This test verifies that a regular user can reset applied filters (search and category) to view all plants in the system.," User is logged in, navigated to Plants List page (/ui/plants), and has applied search or category filters","Enter a search term in the Search plant field (e.g., ""Cactus"")
+Select a specific category from the dropdown (e.g., ""Succulents"")
+Click the Search button
+Observe the filtered results
+Click the Reset button
+Observe the plants list after reset","Filtered results are displayed based on search and category
+After clicking Reset, all filters are cleared
+Search field is empty
+Category dropdown returns to ""All Categories""
+All plants in the system are displayed in the table
+Table displays full list without requiring additional page reload
+""No plants found"" message is not displayed (assuming plants exist)",,UI,Not Executed,214003G
+TC_PLT_USER_05,Verify that user sees appropriate message when no plants match search criteria,"This test verifies that the system displays a clear ""No plants found"" message when user's search or filter criteria don't match any plants.",User is logged in and navigated to Plants List page (/ui/plants),"Enter a search term that doesn't match any existing plants (e.g., ""XYZ123NonExistent"")
+Click the Search button
+Observe the table and message displayed
+Click the Reset button
+Select a category that has no plants
+Click the Search button
+Observe the message displayed","After searching with non-matching term, table displays no plant rows
+""No plants found"" message is centered in the table area
+Table headers (Name, Category, Price, Stock, Actions) remain visible
+Search and Reset buttons remain functional
+After reset, all plants are displayed again
+When filtering by empty category, ""No plants found"" message appears
+No error messages or console errors occur
+User can continue to use search and filter functionality",,UI,Not Executed,214003G
+TC_API_PLT_ADMIN_01,Verify that admin can successfully create a new plant under a sub-category via POST /api/plants/category/{categoryId},"This test verifies that an authenticated admin user can create a new plant by providing valid plant details (name, price, quantity) under a specific sub-category.","Admin user is authenticated with valid JWT token
+At least one valid sub-category exists in the system
+Valid categoryId is available","Set valid JWT authentication token in request header (Authorization: Bearer {token})
+Prepare request body with valid plant data:
+
+json   {
+     ""name"": ""Rose Red"",
+     ""price"": 250.00,
+     ""quantity"": 50
+   }
+
+Send POST request to /api/plants/category/{categoryId} with valid categoryId
+Validate response status code
+Validate response body","JWT token is set in Authorization header
+Request body contains valid plant data
+Response status code is 201 (Created)
+Response body contains:
+
+Newly created plant object with id, name, price, quantity fields
+Plant name matches ""Rose Red""
+Price matches 250.00
+Quantity matches 50
+Category information is included
+
+
+Plant is successfully created in the database",,API,Not Executed,214003G
+TC_API_PLT_ADMIN_02,Verify that admin can successfully update an existing plant via PUT /api/plants/{id},"This test verifies that an authenticated admin user can update plant details (name, price, quantity) for an existing plant.","Admin user is authenticated with valid JWT token
+At least one plant exists in the system
+Valid plant id is available","Set valid JWT authentication token in request header (Authorization: Bearer {token})
+Prepare request body with updated plant data:
+
+json   {
+     ""name"": ""Rose Crimson"",
+     ""price"": 300.00,
+     ""quantity"": 60
+   }
+
+Send PUT request to /api/plants/{id} with valid plant id
+Validate response status code
+Validate response body","JWT token is set in Authorization header
+Request body contains updated plant data
+Response status code is 200 (OK)
+Response body contains:
+
+Updated plant object with same id
+Plant name updated to ""Rose Crimson""
+Price updated to 300.00
+Quantity updated to 60
+
+
+Plant details are successfully updated in the database",,API,Not Executed,214003G
+TC_API_PLT_ADMIN_03, Verify that admin can successfully delete a plant via DELETE /api/plants/{id}, This test verifies that an authenticated admin user can delete an existing plant from the system.,"Admin user is authenticated with valid JWT token
+At least one plant exists in the system
+Valid plant id is available","Set valid JWT authentication token in request header (Authorization: Bearer {token})
+Send DELETE request to /api/plants/{id} with valid plant id
+Validate response status code
+Validate response body or message
+Send GET request to /api/plants/{id} to verify deletion","JWT token is set in Authorization header
+DELETE request is sent successfully
+Response status code is 200 (OK) or 204 (No Content)
+Response body contains success message or is empty
+Subsequent GET request returns 404 (Not Found) confirming plant is deleted",,API,Not Executed,214003G
+TC_API_PLT_ADMIN_04,Verify that admin receives validation error when creating plant without required fields via POST /api/plants/category/{categoryId}, This test verifies that the system validates required fields and returns appropriate error when admin attempts to create a plant with missing mandatory data.,"Admin user is authenticated with valid JWT token
+At least one valid sub-category exists in the system
+Valid categoryId is available","Set valid JWT authentication token in request header (Authorization: Bearer {token})
+Prepare request body with missing required fields (e.g., missing name):
+
+json   {
+     ""price"": 250.00,
+     ""quantity"": 50
+   }
+
+Send POST request to /api/plants/category/{categoryId}
+Validate response status code
+Validate error response body","WT token is set in Authorization header
+Request body is missing required field (name)
+Response status code is 400 (Bad Request)
+Response body contains:
+
+Error object with status, error, message fields
+Validation error message indicating required field is missing
+Timestamp field
+
+
+Plant is not created in the database",,API,Not Executed,214003G
+TC_API_PLT_ADMIN_05,Verify that admin can successfully retrieve all plants via GET /api/plants, This test verifies that an authenticated admin user can retrieve all plants from the system.,"Admin user is authenticated with valid JWT token
+At least one plant exists in the system
+Valid plant id is available","Set valid JWT authentication token in request header (Authorization: Bearer {token})
+Send GET request to /api/plants
+Validate response status code
+Validate response body structure
+Validate plant data in response","JWT token is set in Authorization header
+GET request is sent successfully
+Response status code is 200 (OK)
+Response body contains:
+
+Array of plant objects
+Each plant object contains id, name, price, quantity, category fields
+All existing plants are returned in the response
+
+
+Response data matches database records",,API,Not Executed,214003G
+TC_API_PLT_USER_01,Verify that authenticated user can successfully retrieve all plants via GET /api/plants, This test verifies that an authenticated TESTUSER (read-only) can retrieve all plants from the system.,"TESTUSER is authenticated with valid JWT token
+At least one plant exists in the system","Set valid JWT authentication token for TESTUSER in request header (Authorization: Bearer {token})
+Send GET request to /api/plants
+Validate response status code
+Validate response body structure
+Validate plant data in response","JWT token is set in Authorization header
+GET request is sent successfully
+Response status code is 200 (OK)
+Response body contains:
+
+Array of plant objects
+Each plant object contains id, name, price, quantity, category fields
+All existing plants are returned in the response
+
+
+User with read-only access can view plant data",,API,Not Executed,214003G
+TC_API_PLT_USER_02,Verify that unauthorized user cannot retrieve plants via GET /api/plants without authentication token, This test verifies that the system properly restricts access to plant data when no authentication token is provided.,User is not authenticated or authentication token is not provided,"Do not set authentication token in request header (or set invalid/expired token)
+Send GET request to /api/plants
+Validate response status code
+Validate error response body","Authentication token is not set in header or invalid token is provided
+GET request is sent
+Response status code is 401 (Unauthorized)
+Response body contains:
+
+Error object with status, error, message, and timestamp fields
+Error message indicates unauthorized access or authentication required
+No plant data is returned in the response",,API,Not Executed,214003G
+"TC_API_PLT_USER_03
+", Verify that TESTUSER cannot create a plant via POST /api/plants/category/{categoryId} due to read-only access,This test verifies that TESTUSER with read-only access is denied when attempting to create a new plant.,"TESTUSER is authenticated with valid JWT token
+At least one valid sub-category exists in the system","Set valid JWT authentication token for TESTUSER in request header (Authorization: Bearer {token})
+Prepare request body with valid plant data:
+
+json   {
+     ""name"": ""Orchid White"",
+     ""price"": 500.00,
+     ""quantity"": 30
+   }
+
+Send POST request to /api/plants/category/{categoryId}
+Validate response status code
+Validate error response body","JWT token for TESTUSER is set in Authorization header
+Request body contains valid plant data
+Response status code is 403 (Forbidden)
+Response body contains:
+
+Error object with status, error, message fields
+Error message indicates insufficient permissions or access denied
+Timestamp field
+
+
+Plant is not created in the database",,API,Not Executed,214003G
+TC_API_PLT_USER_04,Verify that TESTUSER can successfully retrieve a specific plant by ID via GET /api/plants/{id}, This test verifies that an authenticated TESTUSER can retrieve details of a specific plant using its ID.,"TESTUSER is authenticated with valid JWT token
+At least one plant exists in the system
+Valid plant id is available","Set valid JWT authentication token for TESTUSER in request header (Authorization: Bearer {token})
+Send GET request to /api/plants/{id} with valid plant id
+Validate response status code
+Validate response body structure
+Validate plant data matches the requested id","JWT token is set in Authorization header
+GET request is sent successfully
+Response status code is 200 (OK)
+Response body contains:
+
+Single plant object with id, name, price, quantity, category fields
+Plant id matches the requested id
+All plant details are accurately returned
+
+
+TESTUSER can view individual plant details",,API,Not Executed,214003G
+"TC_API_PLT_USER_05
+",Verify that TESTUSER cannot delete a plant via DELETE /api/plants/{id} due to read-only access,This test verifies that TESTUSER with read-only access is denied when attempting to delete an existing plant.,"TESTUSER is authenticated with valid JWT token
+At least one plant exists in the system
+Valid plant id is available","Set valid JWT authentication token for TESTUSER in request header (Authorization: Bearer {token})
+Send DELETE request to /api/plants/{id} with valid plant id
+Validate response status code
+Validate error response body
+Send GET request to /api/plants/{id} to verify plant still exists","JWT token for TESTUSER is set in Authorization header
+DELETE request is sent
+Response status code is 403 (Forbidden)
+Response body contains:
+
+Error object with status, error, message fields
+Error message indicates insufficient permissions or access denied
+Timestamp field
+
+
+Subsequent GET request returns 200 (OK) confirming plant still exists in database",,API,Not Executed,214003G

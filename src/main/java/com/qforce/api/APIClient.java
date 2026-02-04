@@ -22,11 +22,18 @@ public class APIClient {
      * Get request specification with base configuration
      */
     private static RequestSpecification getRequestSpec() {
-        return RestAssured.given()
+        RequestSpecification spec = RestAssured.given()
             .baseUri(BASE_URL)
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
             .log().all();
+        
+        // Use existing authentication if set via RestAssured.requestSpecification
+        if (RestAssured.requestSpecification != null) {
+            return spec.spec(RestAssured.requestSpecification);
+        }
+        
+        return spec;
     }
     
     /**
