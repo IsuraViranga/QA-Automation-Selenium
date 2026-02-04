@@ -14,8 +14,14 @@ public class DashboardPage extends BasePage {
     @FindBy(linkText = "Categories")
     private WebElement categoriesTab;
     
+    @FindBy(linkText = "Plants")
+    private WebElement plantsTab;
+    
     @FindBy(xpath = "//a[contains(@class, 'active') and (contains(@href, '/categories') or contains(text(), 'Categories'))]")
     private WebElement activeCategoriesTab;
+    
+    @FindBy(xpath = "//a[contains(@class, 'active') and (contains(@href, '/plants') or contains(text(), 'Plants'))]")
+    private WebElement activePlantsTab;
     
     @FindBy(xpath = "//nav//a[contains(@href, '/dashboard')]")
     private WebElement dashboardTab;
@@ -24,8 +30,14 @@ public class DashboardPage extends BasePage {
     @FindBy(css = "nav a[href*='categories']")
     private WebElement categoriesNavLink;
     
+    @FindBy(css = "nav a[href*='plants']")
+    private WebElement plantsNavLink;
+    
     @FindBy(css = "nav a.active[href*='categories']")
     private WebElement activeCategoriesNavLink;
+    
+    @FindBy(css = "nav a.active[href*='plants']")
+    private WebElement activePlantsNavLink;
     
     // By locators for dynamic elements
     private static final String CATEGORIES_TAB_XPATH = "//a[contains(@href, '/categories') or contains(text(), 'Categories')]";
@@ -64,6 +76,30 @@ public class DashboardPage extends BasePage {
         } catch (Exception e) {
             logger.error("Failed to click Categories tab", e);
             throw new RuntimeException("Could not navigate to Categories page", e);
+        }
+    }
+    
+    /**
+     * Click on Plants tab in navigation menu
+     */
+    public void clickPlantsTab() {
+        logger.info("Clicking on Plants tab");
+        
+        try {
+            // Try primary locator
+            if (isDisplayed(plantsTab)) {
+                click(plantsTab);
+            } else if (isDisplayed(plantsNavLink)) {
+                // Try alternative locator
+                click(plantsNavLink);
+            } else {
+                // Try to find by text
+                logger.warn("Plants tab not found with standard locators, trying text-based locator");
+                navigateTo(getCurrentUrl().replaceAll("/[^/]*$", "") + "/plants");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to click Plants tab", e);
+            throw new RuntimeException("Could not navigate to Plants page", e);
         }
     }
     
@@ -177,6 +213,15 @@ public class DashboardPage extends BasePage {
         logger.info("Navigating to Categories page directly");
         String baseUrl = getCurrentUrl().replaceAll("/[^/]*$", "");
         navigateTo(baseUrl + "/categories");
+    }
+    
+    /**
+     * Navigate to Plants page directly
+     */
+    public void navigateToPlants() {
+        logger.info("Navigating to Plants page directly");
+        String baseUrl = getCurrentUrl().replaceAll("/[^/]*$", "");
+        navigateTo(baseUrl + "/plants");
     }
     
     /**
