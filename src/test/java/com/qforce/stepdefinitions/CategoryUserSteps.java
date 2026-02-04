@@ -4,6 +4,7 @@ import com.qforce.pages.CategoryPage;
 import com.qforce.pages.DashboardPage;
 import com.qforce.pages.LoginPage;
 import com.qforce.utils.ConfigReader;
+import com.qforce.utils.TestDataHelper;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -58,26 +59,51 @@ public class CategoryUserSteps {
         
         logger.info("User successfully logged in and on Dashboard");
     }
-    
+
     @Given("No categories exist in the system")
     public void no_categories_exist_in_the_system() {
-        logger.info("Step: Verifying no categories exist");
-        // This is a precondition - assumed to be set up in test data
-        // In real scenario, you might clean DB or use API to delete all categories
+        logger.info("Step: Ensuring no categories exist in the system (using API)");
+        
+        // Use API to delete all categories
+        TestDataHelper.deleteAllCategories();
+        
+        // Verify count
+        int count = TestDataHelper.getCategoryCount();
+        logger.info("Category count after cleanup: {}", count);
+        
+        Assert.assertEquals(count, 0, 
+            "Expected 0 categories after cleanup but found: " + count);
     }
-    
+
     @Given("At least one category exists in the system")
     public void at_least_one_category_exists_in_the_system() {
-        logger.info("Step: Verifying at least one category exists");
-        // This is a precondition - assumed admin has created at least one category
-        // In real scenario, you might use API to create test category
+        logger.info("Step: Ensuring at least one category exists (using API)");
+        
+        // Use API to ensure at least 1 category exists
+        TestDataHelper.ensureMinimumCategories(1, "One");
+        
+        // Verify count
+        int count = TestDataHelper.getCategoryCount();
+        logger.info("Category count after setup: {}", count);
+        
+        Assert.assertTrue(count >= 1, 
+            "Expected at least 1 category but found: " + count);
     }
-    
+
     @Given("More than {int} categories exist in the system")
     public void more_than_n_categories_exist_in_the_system(int count) {
-        logger.info("Step: Verifying more than {} categories exist", count);
-        // This is a precondition - assumed to be set up in test data
-        // In real scenario, you might use API to create required number of categories
+        logger.info("Step: Ensuring more than {} categories exist (using API)", count);
+        
+        // Use API to ensure required number of categories exist
+        int required = count + 1; // "More than N" means at least N+1
+        TestDataHelper.ensureMinimumCategories(required, "More" );
+        
+        // Verify count
+        int actualCount = TestDataHelper.getCategoryCount();
+        logger.info("Category count after setup: {}", actualCount);
+        
+        Assert.assertTrue(actualCount > count, 
+            "Expected more than " + count + " categories but found: " + actualCount);
     }
     
     @Given("Category list table is displayed")
