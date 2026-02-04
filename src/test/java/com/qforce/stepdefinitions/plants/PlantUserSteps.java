@@ -144,7 +144,7 @@ public class PlantUserSteps {
         logger.info("Step: Selecting a category that has no plants");
         // This would need to be a category known to have no plants
         // For testing purposes, we'll select a category and assume it's empty
-        plantPage.selectCategory("Empty Category");
+        plantPage.selectCategory("Ornamental");
     }
     
     // ==================== THEN STEPS ====================

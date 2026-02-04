@@ -1,9 +1,11 @@
-" TC_PLT_USER_01","Verify that user can view all plants
+" TC_PLT_USER_01
+","Verify that user can view all plants
  in the plants list page", This test verifies that a regular user can successfully navigate to the plants list page and view all existing plants with their details, User is logged in and at least one plant exists in the system,"Navigate to Plants List page (/ui/plants)
 Observe the page layout and table structure
 Verify the presence of search functionality
 Verify the presence of category filter dropdown
-Verify the absence of ""Add a Plant"" button","Plants List page loads successfully
+Verify the absence of ""Add a Plant"" button
+","Plants List page loads successfully
 Page displays heading ""Plants""
 Search bar with placeholder ""Search plant"" is visible
 Category filter dropdown with ""All Categories"" default is visible
@@ -12,7 +14,8 @@ Category filter dropdown with ""All Categories"" default is visible
 Table displays with columns: Name ↑, Category, Price, Stock, Actions
 All existing plants are listed in the table with correct data
 Actions column is empty (no edit/delete buttons for user)
-If no plants exist, ""No plants found"" message is displayed",,UI,Not Executed,214003G
+If no plants exist, ""No plants found"" message is displayed
+",,UI,Not Executed,214003G
 TC_PLT_USER_02,Verify that user can search for plants by name,This test verifies that a regular user can use the search functionality to find plants by entering a plant name or partial name.,"User is logged in, navigated to Plants List page (/ui/plants), and multiple plants exist in the system","Enter a plant name or partial name in the Search plant field (e.g., ""Rose"")
 Click the Search button
 Observe the filtered results in the table
@@ -26,7 +29,7 @@ After clicking Reset, all plants are displayed again
 Search field is cleared after reset",,UI,Not Executed,214003G
 TC_PLT_USER_03,Verify that user can filter plants by category, This test verifies that a regular user can use the category dropdown filter to view plants belonging to a specific category.,"User is logged in, navigated to Plants List page (/ui/plants), and multiple plants exist in different categories","Verify the Category dropdown displays ""All Categories"" by default
 Click on the Category dropdown
-Select a specific category (e.g., ""Succulents"")
+Select a specific category (e.g., ""Flowers"")
 Click the Search button
 Observe the filtered results in the table","Category dropdown opens and displays all available categories
 Selected category is displayed in the dropdown
@@ -36,7 +39,7 @@ Other plants from different categories are not visible
 ""No plants found"" message appears if no plants exist in the selected category
 User can still perform search by name within filtered category results",,UI,Not Executed,214003G
 TC_PLT_USER_04,Verify that user can reset filters to view all plants,This test verifies that a regular user can reset applied filters (search and category) to view all plants in the system.," User is logged in, navigated to Plants List page (/ui/plants), and has applied search or category filters","Enter a search term in the Search plant field (e.g., ""Cactus"")
-Select a specific category from the dropdown (e.g., ""Succulents"")
+Select a specific category from the dropdown (e.g., ""Ornamental"")
 Click the Search button
 Observe the filtered results
 Click the Reset button

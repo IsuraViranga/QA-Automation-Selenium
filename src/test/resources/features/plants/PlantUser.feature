@@ -37,7 +37,7 @@ Feature: Plant User Management
     Given User is on Plants List page and multiple plants exist in different categories
     When User verifies Category dropdown displays "All Categories" by default
     And User clicks on the Category dropdown
-    And User selects a specific category "Smartphone"
+    And User selects a specific category "Flowers"
     And User clicks the Search button
     Then Only plants belonging to the selected category should be displayed in the table
     And Table should update without page refresh
@@ -48,7 +48,7 @@ Feature: Plant User Management
   Scenario: Verify that user can reset filters to view all plants
     Given User is on Plants List page and has applied search or category filters
     When User enters a search term "Cactus" in the Search plant field
-    And User selects a specific category "Smartphone" from the dropdown
+    And User selects a specific category "Ornamental" from the dropdown
     And User clicks the Search button
     And User observes the filtered results
     And User clicks the Reset button
