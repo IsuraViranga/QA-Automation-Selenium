@@ -39,7 +39,10 @@ public class PlantAPI {
                    plantName, categoryId, price, quantity);
         
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("name", plantName);
+        // Only add name if it's not null (for validation testing)
+        if (plantName != null) {
+            requestBody.put("name", plantName);
+        }
         requestBody.put("price", price);
         requestBody.put("quantity", quantity);
         
