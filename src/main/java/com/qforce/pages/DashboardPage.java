@@ -9,12 +9,11 @@ import org.openqa.selenium.support.FindBy;
 public class DashboardPage extends BasePage {
     
     // ========== LOCATORS ==========
-    
-    //@FindBy(xpath = "//a[contains(@href, '/categories') or contains(text(), 'Categories')]")
-    @FindBy(linkText = "Categories")
+    @FindBy(xpath = "//a[contains(@href,'/ui/categories')]")
     private WebElement categoriesTab;
     
-    @FindBy(xpath = "//a[contains(@class, 'active') and (contains(@href, '/categories') or contains(text(), 'Categories'))]")
+    //@FindBy(xpath = "//a[contains(@class, 'active') and (contains(@href, '/categories') or contains(text(), 'Categories'))]")
+    @FindBy(xpath = "//a[contains(@href,'/ui/categories') and contains(@class,'active')]")
     private WebElement activeCategoriesTab;
     
     @FindBy(xpath = "//nav//a[contains(@href, '/dashboard')]")
@@ -70,38 +69,6 @@ public class DashboardPage extends BasePage {
     /**
      * Check if Categories tab is active/highlighted
      */
-    // public boolean isCategoriesTabActive() {
-    //     logger.info("Checking if Categories tab is active");
-        
-    //     try {
-    //         // Method 1: Check for active class on Categories link
-    //         if (isDisplayed(activeCategoriesTab)) {
-    //             logger.info("Categories tab is active (found active element)");
-    //             return true;
-    //         }
-            
-    //         // Method 2: Check alternative locator
-    //         if (isDisplayed(activeCategoriesNavLink)) {
-    //             logger.info("Categories tab is active (found active nav link)");
-    //             return true;
-    //         }
-            
-    //         // Method 3: Check if current URL contains /categories
-    //         String currentUrl = getCurrentUrl();
-    //         if (currentUrl.contains("/categories")) {
-    //             logger.info("Categories tab is active (URL contains /categories)");
-    //             return true;
-    //         }
-            
-    //         logger.info("Categories tab is NOT active");
-    //         return false;
-            
-    //     } catch (Exception e) {
-    //         logger.error("Error checking if Categories tab is active", e);
-    //         // Fallback to URL check
-    //         return getCurrentUrl().contains("/categories");
-    //     }
-    // }
     public boolean isCategoriesTabActive() {
         logger.info("Checking if Categories tab is active");
         

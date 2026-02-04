@@ -4,6 +4,8 @@ import com.qforce.pages.CategoryPage;
 import com.qforce.pages.LoginPage;
 import com.qforce.utils.ConfigReader;
 import com.qforce.utils.DriverManager;
+import com.qforce.utils.TestDataHelper;
+
 import io.cucumber.java.en.*;
 import org.testng.Assert;
 import org.apache.logging.log4j.LogManager;
@@ -58,12 +60,48 @@ public class CategoryAdminSteps {
         Assert.assertTrue(categoryPage.isOnAddCategoryPage(), 
             "Failed to navigate to Add Category page");
     }
-    
+
     @Given("At least one parent Category {string} exists in the system")
     public void at_least_one_parent_category_exists_in_the_system(String parentCategory) {
-        logger.info("Step: Verifying parent category '{}' exists", parentCategory);
-        // This step assumes the parent category already exists
-        // In a real scenario, you might want to create it via API or UI if it doesn't exist
+        logger.info("Step: Ensuring parent category '{}' exists in the system", parentCategory);
+        
+        boolean categoryCreated = false;
+        
+        // Check if category exists using TestDataHelper
+        if (!TestDataHelper.categoryExists(parentCategory)) {
+            logger.info("Parent category '{}' does not exist - creating it via API", parentCategory);
+            
+            // Create the parent category via API
+            io.restassured.response.Response response = TestDataHelper.createCategory(parentCategory);
+            
+            if (response.getStatusCode() == 201) {
+                logger.info("Successfully created parent category: {}", parentCategory);
+                categoryCreated = true;
+            } else {
+                logger.error("Failed to create parent category: {}. Status: {}", 
+                    parentCategory, response.getStatusCode());
+                Assert.fail("Failed to create required parent category: " + parentCategory);
+            }
+        } else {
+            logger.info("Parent category '{}' already exists", parentCategory);
+        }
+        
+        // If we created a new category via API, refresh the page so dropdown gets updated
+        if (categoryCreated) {
+            logger.info("Refreshing page to update dropdown with newly created category");
+            categoryPage.refreshPage();
+            
+            // Wait for page to reload
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+            
+            // Verify we're still on Add Category page
+            Assert.assertTrue(categoryPage.isOnAddCategoryPage(), 
+                "Should still be on Add Category page after refresh");
+        }
     }
     
     @When("Admin enters a valid category name {string}")

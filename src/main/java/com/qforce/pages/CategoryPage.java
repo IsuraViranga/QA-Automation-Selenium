@@ -42,11 +42,6 @@ public class CategoryPage extends BasePage {
     // By locators (alternative approach)
     private By categoryNameLocator = By.id("name");
     private By parentCategoryLocator = By.id("parentId");
-    // private By saveButtonLocator = By.id("saveButton");
-    // private By cancelButtonLocator = By.id("cancelButton");
-    // private By successMessageLocator = By.cssSelector(".success-message");
-    // private By errorMessageLocator = By.cssSelector(".error-message");
-    // private By validationErrorLocator = By.cssSelector(".validation-error");
 
     // ========== NEW LOCATORS FOR USER TEST CASES ==========
 
@@ -85,6 +80,9 @@ public class CategoryPage extends BasePage {
     //@FindBy(xpath = "//table//thead//th")
     @FindBy(xpath = "//table/thead/tr/th")
     private List<WebElement> tableHeaders;
+
+    @FindBy(xpath = "//h3[normalize-space()='Categories']")
+    private WebElement categoriesPageTitle;
     
     /**
      * Navigate to Add Category page
@@ -203,12 +201,21 @@ public class CategoryPage extends BasePage {
      * Verify navigation to category list page
      */
     public boolean isOnCategoryListPage() {
-        String currentUrl = getCurrentUrl();
-        boolean onListPage = currentUrl.contains("/categories") && !currentUrl.contains("/add");
-        logger.info("On category list page: {}", onListPage);
-        return onListPage;
+        try {
+            String currentUrl = getCurrentUrl();
+            boolean urlCorrect = currentUrl.contains("/categories") && !currentUrl.contains("/add");
+            boolean titleDisplayed = isDisplayed(categoriesPageTitle);
+
+            logger.info("On category list page - URL correct: {}, Title displayed: {}", 
+                        urlCorrect, titleDisplayed);
+
+            return urlCorrect && titleDisplayed;
+        } catch (Exception e) {
+            logger.error("Error verifying Category List Page", e);
+            return false;
+        }
     }
-    
+
     /**
      * Get number of categories in the list
      */
@@ -305,26 +312,6 @@ public class CategoryPage extends BasePage {
     /**
      * Check if a specific column header is present
      */
-    
-    // public boolean isColumnHeaderPresent(String columnName) {
-    //     logger.info("Checking if column header '{}' is present", columnName);
-        
-    //     try {
-    //         for (WebElement header : tableHeaders) {
-    //             String headerText = getText(header).trim();
-    //             if (headerText.equalsIgnoreCase(columnName)) {
-    //                 logger.info("Column header '{}' found", columnName);
-    //                 return true;
-    //             }
-    //         }
-    //         logger.info("Column header '{}' NOT found", columnName);
-    //         return false;
-    //     } catch (Exception e) {
-    //         logger.error("Error checking column header", e);
-    //         return false;
-    //     }
-    // }
-
     public boolean isColumnHeaderPresent(String columnName) {
     logger.info("Checking if column header '{}' is present", columnName);
     
@@ -566,51 +553,35 @@ public class CategoryPage extends BasePage {
      */
     public boolean hasSortingIndicator(String columnName) {
         logger.info("Checking if column '{}' has sorting indicator", columnName);
-        
+
         try {
-            // Find the column header
             for (WebElement header : tableHeaders) {
                 String headerText = getText(header).trim();
-                
-                if (headerText.equalsIgnoreCase(columnName)) {
-                    // Check for sortable class
-                    String className = header.getAttribute("class");
-                    if (className != null && (className.contains("sortable") || className.contains("sort"))) {
-                        logger.info("Column '{}' has sorting indicator (via class)", columnName);
-                        return true;
-                    }
-                    
-                    // Check for sorting icon (▲ ▼ ↑ ↓)
-                    String headerHtml = header.getAttribute("innerHTML");
-                    if (headerHtml != null && (
-                        headerHtml.contains("▲") || 
-                        headerHtml.contains("▼") || 
-                        headerHtml.contains("↑") || 
-                        headerHtml.contains("↓") ||
-                        headerHtml.contains("sort") ||
-                        headerHtml.contains("<i") ||  // Icon element
-                        headerHtml.contains("arrow")
-                    )) {
-                        logger.info("Column '{}' has sorting indicator (via icon)", columnName);
-                        return true;
-                    }
-                    
-                    // Check for nested icon element
-                    try {
-                        WebElement icon = header.findElement(By.tagName("i"));
-                        if (icon != null) {
-                            logger.info("Column '{}' has sorting indicator (icon element found)", columnName);
+
+                if (headerText.startsWith(columnName)) {
+
+                    // Look for span inside header (your actual case)
+                    List<WebElement> spans = header.findElements(By.tagName("span"));
+                    for (WebElement span : spans) {
+                        String spanText = span.getText().trim();
+                        if (spanText.contains("↑") || spanText.contains("↓")) {
+                            logger.info("Column '{}' has sorting indicator via <span>: {}", columnName, spanText);
                             return true;
                         }
-                    } catch (Exception e) {
-                        // No icon element
+                    }
+
+                    // Fallback: check full HTML
+                    String html = header.getAttribute("innerHTML");
+                    if (html.contains("↑") || html.contains("↓")) {
+                        logger.info("Column '{}' has sorting indicator via HTML", columnName);
+                        return true;
                     }
                 }
             }
-            
+
             logger.info("Column '{}' does NOT have sorting indicator", columnName);
             return false;
-            
+
         } catch (Exception e) {
             logger.error("Error checking sorting indicator", e);
             return false;
@@ -681,6 +652,11 @@ public class CategoryPage extends BasePage {
         } catch (Exception e) {
             logger.error("Error clicking page number", e);
         }
+    }
+
+    public void refreshPage() {
+        logger.info("Refreshing the current page");
+        driver.navigate().refresh();
     }
 
 }
