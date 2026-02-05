@@ -1,7 +1,7 @@
 package com.qforce.keywords;
 
-import com.qforce.pages.CategoryPage;
-import com.qforce.pages.LoginPage;
+import com.qforce.pages.categories.CategoryPage;
+import com.qforce.pages.login.LoginPage;
 import com.qforce.utils.DriverManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

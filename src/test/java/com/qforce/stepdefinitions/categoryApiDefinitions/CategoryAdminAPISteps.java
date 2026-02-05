@@ -1,7 +1,7 @@
-package com.qforce.stepdefinitions;
+package com.qforce.stepdefinitions.categoryApiDefinitions;
 
+import com.qforce.api.TestDataHelper;
 import com.qforce.utils.ConfigReader;
-import com.qforce.utils.TestDataHelper;
 
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;

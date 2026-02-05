@@ -1,7 +1,7 @@
 package com.qforce.stepdefinitions.plants;
 
 import com.qforce.pages.DashboardPage;
-import com.qforce.pages.LoginPage;
+import com.qforce.pages.login.LoginPage;
 import com.qforce.pages.plants.PlantPage;
 import com.qforce.utils.ConfigReader;
 import io.cucumber.java.en.And;
