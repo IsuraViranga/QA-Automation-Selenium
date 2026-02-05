@@ -81,6 +81,51 @@ public class CategoryPage extends BasePage {
     @FindBy(xpath = "//table/thead/tr/th")
     private List<WebElement> tableHeaders;
 
+    // ========== SEARCH AND FILTER LOCATORS (Following ID > Name > CSS > XPath) ==========
+
+    // Search input field - using name attribute (no ID available)
+    @FindBy(name = "name")
+    private WebElement searchInputField;
+
+    // Parent filter dropdown - using name attribute (no ID available)
+    @FindBy(name = "parentId")
+    private WebElement parentFilterDropdown;
+
+    // Search button - using CSS selector for type and text
+    @FindBy(css = "button[type='submit']")
+    private WebElement searchButton;
+
+    // Reset button - using XPath for href attribute
+    @FindBy(xpath = "//a[@href='/ui/categories' and contains(@class, 'btn-outline-secondary')]")
+    private WebElement resetButton;
+
+    // Add Category button - using XPath for href and text (admin only)
+    @FindBy(xpath = "//a[@href='/ui/categories/add' and contains(text(), 'Add A Category')]")
+    private WebElement addCategoryButton_User;
+
+    // ========== ACTION BUTTON LOCATORS ==========
+
+    // Edit buttons - using CSS selector
+    @FindBy(css = "a.btn-outline-primary")
+    private List<WebElement> editButtons;
+
+    // Delete buttons - using CSS selector
+    @FindBy(css = "button.btn-outline-danger")
+    private List<WebElement> deleteButtons;
+
+    // ========== PAGINATION LOCATORS (Enhanced) ==========
+
+    // Previous button - using XPath for text
+    @FindBy(xpath = "//a[normalize-space()='Previous']")
+    private WebElement previousButtonPagination;
+
+    // Next button - already defined above
+    // @FindBy(xpath = "//a[normalize-space()='Next']")
+    // private WebElement nextButton;
+
+    // Active page indicator - using CSS
+    @FindBy(css = "li.page-item.active a.page-link")
+    private WebElement activePageNumber;
     @FindBy(xpath = "//h3[normalize-space()='Categories']")
     private WebElement categoriesPageTitle;
     
@@ -596,10 +641,15 @@ public class CategoryPage extends BasePage {
         
         try {
             for (WebElement header : tableHeaders) {
-                String headerText = getText(header).trim();
+                String headerText = getText(header).trim().replaceAll("[↑↓]", "").trim();
                 if (headerText.equalsIgnoreCase(columnName)) {
-                    click(header);
-                    logger.info("Clicked on column header: {}", columnName);
+                    // Find the <a> link inside the <th> header
+                    WebElement link = header.findElement(By.tagName("a"));
+                    click(link);
+                    logger.info("Clicked on column header link: {}", columnName);
+                    
+                    // Wait for page to reload after sort
+                    Thread.sleep(2000);
                     return;
                 }
             }
@@ -654,6 +704,458 @@ public class CategoryPage extends BasePage {
         }
     }
 
+    // ========== NEW METHODS FOR SEARCH AND FILTER ==========
+
+    /**
+     * Enter text in search field
+     */
+    public void enterSearchText(String searchText) {
+        logger.info("Entering search text: {}", searchText);
+        try {
+            clear(searchInputField);
+            sendKeys(searchInputField, searchText);
+        } catch (Exception e) {
+            logger.error("Error entering search text", e);
+        }
+    }
+
+    /**
+     * Get current search text
+     */
+    public String getSearchText() {
+        try {
+            String searchText = getAttribute(searchInputField, "value");
+            logger.info("Current search text: {}", searchText);
+            return searchText != null ? searchText : "";
+        } catch (Exception e) {
+            logger.error("Error getting search text", e);
+            return "";
+        }
+    }
+
+    /**
+     * Select parent from filter dropdown
+     */
+    public void selectParentFilter(String parentName) {
+        logger.info("Selecting parent filter: {}", parentName);
+        try {
+            selectByVisibleText(parentFilterDropdown, parentName);
+        } catch (Exception e) {
+            logger.error("Error selecting parent filter", e);
+        }
+    }
+
+    /**
+     * Get currently selected parent filter
+     */
+    public String getSelectedParentFilter() {
+        try {
+            String selected = getSelectedOption(parentFilterDropdown);
+            logger.info("Currently selected parent filter: {}", selected);
+            return selected;
+        } catch (Exception e) {
+            logger.error("Error getting selected parent filter", e);
+            return "";
+        }
+    }
+
+    /**
+     * Click Search button
+     */
+    public void clickSearchButton() {
+        logger.info("Clicking Search button");
+        try {
+            click(searchButton);
+            // Wait for results to load
+            Thread.sleep(1000);
+        } catch (Exception e) {
+            logger.error("Error clicking Search button", e);
+        }
+    }
+
+    /**
+     * Click Reset button
+     */
+    public void clickResetButton() {
+        logger.info("Clicking Reset button");
+        try {
+            click(resetButton);
+            // Wait for page to reload
+            Thread.sleep(1000);
+        } catch (Exception e) {
+            logger.error("Error clicking Reset button", e);
+        }
+    }
+
+    /**
+     * Check if search field is cleared
+     */
+    public boolean isSearchFieldCleared() {
+        String searchText = getSearchText();
+        boolean cleared = searchText.isEmpty();
+        logger.info("Search field cleared: {}", cleared);
+        return cleared;
+    }
+
+    // ========== NEW METHODS FOR ACCESS CONTROL ==========
+
+    /**
+     * Check if Add A Category button is visible (should not be for users)
+     */
+    public boolean isAddCategoryButtonVisible() {
+        try {
+            boolean visible = isDisplayed(addCategoryButton_User);
+            logger.info("Add Category button visible: {}", visible);
+            return visible;
+        } catch (Exception e) {
+            logger.info("Add Category button not visible (expected for users)");
+            return false;
+        }
+    }
+
+    /**
+     * Check if edit buttons are disabled
+     */
+    public boolean areEditButtonsDisabled() {
+        try {
+            if (editButtons.isEmpty()) {
+                logger.info("No edit buttons found");
+                return true; // If no buttons found, consider as "disabled" state
+            }
+
+            for (WebElement editButton : editButtons) {
+                // Check if button is enabled and clickable
+                boolean isEnabled = editButton.isEnabled();
+                boolean isDisplayed = editButton.isDisplayed();
+                
+                // If button is enabled and displayed, it means it's NOT disabled
+                if (isEnabled && isDisplayed) {
+                    logger.info("Found ENABLED edit button - button is clickable");
+                    return false; // Found an enabled button, so NOT all disabled
+                }
+            }
+            
+            logger.info("All edit buttons are disabled");
+            return true;
+        } catch (Exception e) {
+            logger.error("Error checking edit button status", e);
+            return false;
+        }
+    }
+
+    /**
+     * Check if delete buttons are disabled
+     */
+    public boolean areDeleteButtonsDisabled() {
+        try {
+            if (deleteButtons.isEmpty()) {
+                logger.info("No delete buttons found");
+                return true;
+            }
+
+            for (WebElement deleteButton : deleteButtons) {
+                String disabled = deleteButton.getAttribute("disabled");
+                String ariaDisabled = deleteButton.getAttribute("aria-disabled");
+                
+                // Check if disabled attribute exists or aria-disabled is true
+                if (disabled == null && (ariaDisabled == null || !ariaDisabled.equals("true"))) {
+                    logger.info("Found enabled delete button");
+                    return false;
+                }
+            }
+            
+            logger.info("All delete buttons are disabled");
+            return true;
+        } catch (Exception e) {
+            logger.error("Error checking delete button status", e);
+            return false;
+        }
+    }
+
+    // ========== ENHANCED SORTING METHODS ==========
+
+    /**
+     * Get sort direction for a column
+     */
+    public String getSortDirection(String columnName) {
+        logger.info("Getting sort direction for column: {}", columnName);
+        
+        try {
+            for (WebElement header : tableHeaders) {
+                String headerText = getText(header).trim();
+                
+                // Remove sorting indicators from header text for comparison
+                String cleanHeaderText = headerText.replaceAll("[↑↓]", "").trim();
+                
+                if (cleanHeaderText.equalsIgnoreCase(columnName)) {
+                    // Check for ascending indicator
+                    if (headerText.contains("↑") || headerText.contains("asc")) {
+                        logger.info("Column '{}' sorted in ascending order", columnName);
+                        return "ascending";
+                    }
+                    // Check for descending indicator
+                    else if (headerText.contains("↓") || headerText.contains("desc")) {
+                        logger.info("Column '{}' sorted in descending order", columnName);
+                        return "descending";
+                    }
+                    else {
+                        logger.info("Column '{}' has no sort direction", columnName);
+                        return "none";
+                    }
+                }
+            }
+            
+            logger.warn("Column '{}' not found", columnName);
+            return "none";
+        } catch (Exception e) {
+            logger.error("Error getting sort direction", e);
+            return "none";
+        }
+    }
+
+    /**
+     * Verify categories are sorted in specified order
+     */
+    public boolean verifySortedOrder(String columnName, String direction) {
+        logger.info("Verifying sorted order for column '{}' in '{}' direction", columnName, direction);
+        
+        try {
+            // Get column index
+            int columnIndex = -1;
+            for (int i = 0; i < tableHeaders.size(); i++) {
+                String headerText = getText(tableHeaders.get(i)).trim().replaceAll("[↑↓]", "").trim();
+                if (headerText.equalsIgnoreCase(columnName)) {
+                    columnIndex = i;
+                    break;
+                }
+            }
+            
+            if (columnIndex == -1) {
+                logger.warn("Column '{}' not found", columnName);
+                return false;
+            }
+            
+            // Get all values from the column
+            List<String> values = new java.util.ArrayList<>();
+            for (WebElement row : categoryRows) {
+                List<WebElement> cells = row.findElements(By.tagName("td"));
+                if (columnIndex < cells.size()) {
+                    String cellValue = getText(cells.get(columnIndex)).trim();
+                    if (!cellValue.isEmpty()) {
+                        values.add(cellValue);
+                    }
+                }
+            }
+            
+            // Check if sorted
+            if (values.size() < 2) {
+                logger.info("Not enough data to verify sorting");
+                return true; // Can't verify with less than 2 items
+            }
+            
+            boolean isSorted = true;
+            for (int i = 0; i < values.size() - 1; i++) {
+                String current = values.get(i);
+                String next = values.get(i + 1);
+                
+                int comparison;
+                // Try numeric comparison for ID column
+                if (columnName.equalsIgnoreCase("ID")) {
+                    try {
+                        comparison = Integer.compare(Integer.parseInt(current), Integer.parseInt(next));
+                    } catch (NumberFormatException e) {
+                        comparison = current.compareToIgnoreCase(next);
+                    }
+                } else {
+                    comparison = current.compareToIgnoreCase(next);
+                }
+                
+                if (direction.equalsIgnoreCase("ascending") && comparison > 0) {
+                    isSorted = false;
+                    break;
+                } else if (direction.equalsIgnoreCase("descending") && comparison < 0) {
+                    isSorted = false;
+                    break;
+                }
+            }
+            
+            logger.info("Column '{}' is {} sorted in {} order", columnName, isSorted ? "correctly" : "NOT", direction);
+            return isSorted;
+            
+        } catch (Exception e) {
+            logger.error("Error verifying sorted order", e);
+            return false;
+        }
+    }
+
+    // ========== ENHANCED PAGINATION METHODS ==========
+
+    /**
+     * Get current page number
+     */
+    public int getCurrentPageNumber() {
+        try {
+            if (activePageNumber != null && isDisplayed(activePageNumber)) {
+                String pageText = getText(activePageNumber);
+                int pageNum = Integer.parseInt(pageText);
+                logger.info("Current page number: {}", pageNum);
+                return pageNum;
+            }
+            logger.info("No active page found, assuming page 1");
+            return 1;
+        } catch (Exception e) {
+            logger.error("Error getting current page number", e);
+            return 1;
+        }
+    }
+
+    /**
+     * Check if Previous button is enabled
+     */
+    public boolean isPreviousButtonEnabled() {
+        try {
+            if (previousButtonPagination == null) {
+                return false;
+            }
+            
+            WebElement parentLi = previousButtonPagination.findElement(By.xpath(".."));
+            String className = parentLi.getAttribute("class");
+            boolean enabled = !className.contains("disabled");
+            logger.info("Previous button enabled: {}", enabled);
+            return enabled;
+        } catch (Exception e) {
+            logger.error("Error checking Previous button status", e);
+            return false;
+        }
+    }
+
+    /**
+     * Check if Next button is enabled
+     */
+    public boolean isNextButtonEnabled() {
+        try {
+            if (nextButton == null) {
+                return false;
+            }
+            
+            WebElement parentLi = nextButton.findElement(By.xpath(".."));
+            String className = parentLi.getAttribute("class");
+            boolean enabled = !className.contains("disabled");
+            logger.info("Next button enabled: {}", enabled);
+            return enabled;
+        } catch (Exception e) {
+            logger.error("Error checking Next button status", e);
+            return false;
+        }
+    }
+
+    /**
+     * Click Next button in pagination
+     */
+    public void clickNextPageButton() {
+        logger.info("Clicking Next page button");
+        try {
+            if (isNextButtonEnabled()) {
+                click(nextButton);
+                Thread.sleep(1000); // Wait for page load
+            } else {
+                logger.warn("Next button is disabled, cannot click");
+            }
+        } catch (Exception e) {
+            logger.error("Error clicking Next button", e);
+        }
+    }
+
+    /**
+     * Click Previous button in pagination
+     */
+    public void clickPreviousPageButton() {
+        logger.info("Clicking Previous page button");
+        try {
+            if (isPreviousButtonEnabled()) {
+                click(previousButtonPagination);
+                Thread.sleep(1000); // Wait for page load
+            } else {
+                logger.warn("Previous button is disabled, cannot click");
+            }
+        } catch (Exception e) {
+            logger.error("Error clicking Previous button", e);
+        }
+    }
+
+    /**
+     * Verify category list contains only matching results
+     */
+    public boolean categoryListContainsOnly(String searchTerm) {
+        logger.info("Verifying category list contains only: {}", searchTerm);
+        
+        try {
+            if (categoryRows.isEmpty()) {
+                logger.info("No categories found");
+                return false;
+            }
+            
+            for (WebElement row : categoryRows) {
+                String rowText = getText(row).toLowerCase();
+                if (!rowText.contains(searchTerm.toLowerCase())) {
+                    logger.info("Found row that doesn't match search term: {}", rowText);
+                    return false;
+                }
+            }
+            
+            logger.info("All categories match search term");
+            return true;
+        } catch (Exception e) {
+            logger.error("Error verifying category list", e);
+            return false;
+        }
+    }
+
+    /**
+     * Verify category list filtered by parent
+     */
+    public boolean categoryListFilteredByParent(String parentName) {
+        logger.info("Verifying category list filtered by parent: {}", parentName);
+        
+        try {
+            if (categoryRows.isEmpty()) {
+                logger.info("No categories found");
+                return false;
+            }
+            
+            // Find Parent column index
+            int parentColumnIndex = -1;
+            for (int i = 0; i < tableHeaders.size(); i++) {
+                String headerText = getText(tableHeaders.get(i)).trim();
+                if (headerText.equalsIgnoreCase("Parent")) {
+                    parentColumnIndex = i;
+                    break;
+                }
+            }
+            
+            if (parentColumnIndex == -1) {
+                logger.warn("Parent column not found");
+                return false;
+            }
+            
+            // Check each row
+            for (WebElement row : categoryRows) {
+                List<WebElement> cells = row.findElements(By.tagName("td"));
+                if (parentColumnIndex < cells.size()) {
+                    String parentValue = getText(cells.get(parentColumnIndex)).trim();
+                    if (!parentValue.equalsIgnoreCase(parentName) && !parentValue.isEmpty()) {
+                        logger.info("Found row with different parent: {}", parentValue);
+                        return false;
+                    }
+                }
+            }
+            
+            logger.info("All categories have parent: {}", parentName);
+            return true;
+        } catch (Exception e) {
+            logger.error("Error verifying parent filter", e);
+            return false;
+        }
     public void refreshPage() {
         logger.info("Refreshing the current page");
         driver.navigate().refresh();
