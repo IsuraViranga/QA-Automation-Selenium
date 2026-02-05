@@ -1,8 +1,10 @@
-package com.qforce.utils;
+package com.qforce.api;
 
 import io.restassured.response.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.qforce.utils.ConfigReader;
 
 import java.util.List;
 

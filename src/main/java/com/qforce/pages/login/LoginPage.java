@@ -1,8 +1,10 @@
-package com.qforce.pages;
+package com.qforce.pages.login;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+
+import com.qforce.pages.BasePage;
 
 /**
  * Page Object for Login Page

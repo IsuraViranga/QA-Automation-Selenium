@@ -1,6 +1,6 @@
 package com.qforce.utils;
 
-import com.qforce.pages.LoginPage;
+import com.qforce.pages.login.LoginPage;
 import com.qforce.pages.plants.PlantPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

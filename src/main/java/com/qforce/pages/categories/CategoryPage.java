@@ -1,8 +1,10 @@
-package com.qforce.pages;
+package com.qforce.pages.categories;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+
+import com.qforce.pages.BasePage;
 
 import java.util.List;
 
@@ -1156,6 +1158,8 @@ public class CategoryPage extends BasePage {
             logger.error("Error verifying parent filter", e);
             return false;
         }
+    }
+
     public void refreshPage() {
         logger.info("Refreshing the current page");
         driver.navigate().refresh();

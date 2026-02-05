@@ -1,10 +1,11 @@
-package com.qforce.stepdefinitions;
+package com.qforce.stepdefinitions.categoryUiDefinitions;
 
-import com.qforce.pages.CategoryPage;
+import com.qforce.api.TestDataHelper;
 import com.qforce.pages.DashboardPage;
-import com.qforce.pages.LoginPage;
+import com.qforce.pages.categories.CategoryPage;
+import com.qforce.pages.login.LoginPage;
 import com.qforce.utils.ConfigReader;
-import com.qforce.utils.TestDataHelper;
+
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
