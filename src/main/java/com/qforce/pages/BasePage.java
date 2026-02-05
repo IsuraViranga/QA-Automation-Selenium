@@ -138,6 +138,13 @@ public class BasePage {
         return selectedText;
     }
     
+    protected String getSelectedOption(WebElement element) {
+        Select select = new Select(element);
+        String selectedText = select.getFirstSelectedOption().getText();
+        logger.info("Selected option: {}", selectedText);
+        return selectedText;
+    }
+    
     /**
      * Wait for element
      */
@@ -194,6 +201,20 @@ public class BasePage {
         String value = driver.findElement(locator).getAttribute(attribute);
         logger.info("Getting attribute '{}' from {}: {}", attribute, locator, value);
         return value;
+    }
+    
+    protected String getAttribute(WebElement element, String attribute) {
+        String value = element.getAttribute(attribute);
+        logger.info("Getting attribute '{}': {}", attribute, value);
+        return value;
+    }
+    
+    /**
+     * Clear element
+     */
+    protected void clear(WebElement element) {
+        logger.info("Clearing element");
+        element.clear();
     }
     
     /**
