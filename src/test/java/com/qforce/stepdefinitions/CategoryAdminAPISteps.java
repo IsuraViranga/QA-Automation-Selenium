@@ -1,6 +1,8 @@
 package com.qforce.stepdefinitions;
 
 import com.qforce.utils.ConfigReader;
+import com.qforce.utils.TestDataHelper;
+
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -79,46 +81,20 @@ public class CategoryAdminAPISteps {
         
         logger.info("Request initialized with authentication token");
     }
-    
-    @Given("At least one parent category {string} exists in the system with id {string}")
-    public void at_least_one_parent_category_exists_in_the_system(String categoryName, String categoryId) {
-        logger.info("Step: Verifying parent category '{}' exists with id '{}'", categoryName, categoryId);
+
+    @Given("At least one parent category exists in the system")
+    public void at_least_one_category_exists_in_the_system() {
+        logger.info("Step: Ensuring at least one category exists (using API)");
         
-        // Verify category exists by making GET request
-        Response getResponse = given()
-            .header("Authorization", authToken)
-            .when()
-            .get("/api/categories/" + categoryId);
+        // Use API to ensure at least 1 category exists
+        TestDataHelper.ensureMinimumCategories(1, "Tooi");
         
-        if (getResponse.getStatusCode() == 200) {
-            logger.info("Parent category exists: {}", categoryName);
-        } else {
-            logger.warn("Parent category might not exist, will be created by previous test or manually");
-        }
-    }
-    
-    @Given("A category {string} already exists under parent {string}")
-    public void a_category_already_exists_under_parent(String categoryName, String parentId) {
-        logger.info("Step: Ensuring category '{}' exists under parent '{}'", categoryName, parentId);
+        // Verify count
+        int count = TestDataHelper.getCategoryCount();
+        logger.info("Category count after setup: {}", count);
         
-        // Create the category to ensure it exists for duplicate test
-        String requestBody = String.format(
-            "{\"name\":\"%s\",\"parent\":{\"id\":%s}}", 
-            categoryName, parentId
-        );
-        
-        Response createResponse = given()
-            .header("Authorization", authToken)
-            .contentType("application/json")
-            .body(requestBody)
-            .when()
-            .post("/api/categories");
-        
-        logger.info("Category creation response status: {}", createResponse.getStatusCode());
-        
-        if (createResponse.getStatusCode() == 201 || createResponse.getStatusCode() == 400) {
-            logger.info("Category '{}' exists (created or already exists)", categoryName);
-        }
+        Assert.assertTrue(count >= 1, 
+            "Expected at least 1 category but found: " + count);
     }
     
     // ==================== WHEN STEPS ====================
@@ -160,13 +136,16 @@ public class CategoryAdminAPISteps {
         
         Map<String, String> data = dataTable.asMap(String.class, String.class);
         String name = data.get("name");
-        String parentId = data.get("parentId");
+        Integer parentId = TestDataHelper.getAnyParentCategoryId();
+        if (parentId == null) {
+            throw new RuntimeException("No parent category exists. Ensure at least one parent category is created.");
+        }
         
         String requestBody = String.format(
-            "{\"name\":\"%s\",\"parent\":{\"id\":%s}}", 
+            "{\"name\":\"%s\",\"parent\":{\"id\":%d}}", 
             name, parentId
         );
-        
+
         logger.info("Request body: {}", requestBody);
         
         response = request
@@ -240,27 +219,33 @@ public class CategoryAdminAPISteps {
         logger.info("Response status code: {}", response.getStatusCode());
         logger.info("Response body: {}", response.getBody().asString());
     }
-    
+
     @When("Admin sends POST request to {string} with duplicate category data:")
     public void admin_sends_post_request_with_duplicate_category_data(String endpoint, DataTable dataTable) {
-        logger.info("Step: Sending POST request to {} with duplicate category data", endpoint);
-        
-        Map<String, String> data = dataTable.asMap(String.class, String.class);
-        String name = data.get("name");
-        String parentId = data.get("parentId");
-        
+        //logger.info("Step: Sending POST request to {} with duplicate category data", endpoint);
+
+        // Get real existing sub-category from system
+        Map<String, Object> subCategory = TestDataHelper.getAnySubCategory();
+
+        if (subCategory == null) {
+            throw new RuntimeException("No sub-category exists to test duplicate scenario");
+        }
+
+        String name = subCategory.get("name").toString();
+        Integer parentId = (Integer) subCategory.get("parentId");
+
         String requestBody = String.format(
-            "{\"name\":\"%s\",\"parent\":{\"id\":%s}}", 
+            "{\"name\":\"%s\",\"parent\":{\"id\":%d}}", 
             name, parentId
         );
-        
-        logger.info("Request body: {}", requestBody);
-        
+
+        logger.info("Duplicate request body: {}", requestBody);
+
         response = request
             .body(requestBody)
             .when()
             .post(endpoint);
-        
+
         logger.info("Response status code: {}", response.getStatusCode());
         logger.info("Response body: {}", response.getBody().asString());
     }

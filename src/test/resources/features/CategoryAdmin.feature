@@ -35,7 +35,7 @@ Feature: Category Admin Management
   @TC_CAT_ADMIN_04 @Positive @SubCategory
   Scenario: Verify admin can successfully add a new sub-category with valid inputs
     Given At least one parent Category "Electronic" exists in the system
-    When Admin enters a valid category name "Smartphone"
+    When Admin enters a valid category name "smallcat"
     And Admin selects an existing parent category "Electronic" from Parent Category dropdown
     And Admin clicks the Save button
     Then System should validate and accept the parent category from Parent Category dropdown
@@ -43,7 +43,7 @@ Feature: Category Admin Management
     And Admin should be redirected to Category List page with URL "/ui/categories"
     And System should display the success message "Category created successfully"
     And System should validate navigation to category list page
-    And Newly added sub-category "Smartphone" should appear in the category list
+    And Newly added sub-category "smallcat" should appear in the category list
     And Correct parent category name "Electronic" should be displayed in the Parent column
 
   @TC_CAT_ADMIN_05 @Positive @Cancel
