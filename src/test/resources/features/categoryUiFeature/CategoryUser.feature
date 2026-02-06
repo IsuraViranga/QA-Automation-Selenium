@@ -1,3 +1,4 @@
+@CategoryUser
 Feature: Category User Management
   As a user
   I want to view and navigate categories
@@ -48,3 +49,48 @@ Feature: Category User Management
     Then ID column header should display sorting indicator
     And Name column header should display sorting indicator
     And Parent column header should display sorting indicator
+
+  @TC_CAT_USER_UI_01 @Positive @Search
+  Scenario: Verify search functionality by category name
+    Given At least one category exists in the system
+    And User navigates to Categories page
+    When User enters "Fruits" in search field
+    And User clicks Search button
+    Then Category list should display only categories matching "Fruits"
+
+  @TC_CAT_USER_UI_02 @Negative @Search
+  Scenario: Verify User can search categories with no results found
+    When User navigates to Categories page
+    And User enters "NonExistentCategory123" in search field
+    And User clicks Search button
+    Then Message "No category found" should be displayed
+    And No category records should be shown in the table
+
+  @TC_CAT_USER_UI_03 @Positive @AccessControl
+  Scenario: Verify User cannot access Edit action for categories
+    Given At least one category exists in the system
+    And User navigates to Categories page
+    Then Edit buttons should be disabled for all categories
+
+
+
+  @TC_CAT_USER_UI_04 @Positive @Filter
+  Scenario: Verify filter by parent category
+    Given At least one category exists in the system
+    And User navigates to Categories page
+    When User selects "Electronic" from parent filter dropdown
+    And User clicks Search button
+    Then Category list should display only categories with parent "Electronic"
+
+
+
+  @TC_CAT_USER_UI_05 @Positive @Sorting
+  Scenario: Verify sorting by Name column in ascending and descending order
+    Given At least one category exists in the system
+    And User navigates to Categories page
+    When User clicks on "Name" column header
+    Then Categories should be sorted by "Name" in "ascending" order
+    And Sorting indicator should show "ascending" direction for "Name" column
+    When User clicks on "Name" column header
+    Then Categories should be sorted by "Name" in "descending" order
+    And Sorting indicator should show "descending" direction for "Name" column

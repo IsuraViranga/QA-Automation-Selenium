@@ -387,4 +387,128 @@ public class CategoryUserAPISteps {
 
         logger.info("Verified: No category data returned in response");
     }
+
+    // ==================== NEW STEP DEFINITIONS FOR API TESTS ====================
+
+    @When("User sends PUT request to {string} with name {string}")
+    public void user_sends_put_request_with_name(String endpoint, String name) {
+        logger.info("Step: User sends PUT request to {} with name={}", endpoint, name);
+
+        String requestBody = String.format("{\"name\":\"%s\",\"parentId\":null}", name);
+        logger.info("Request body: {}", requestBody);
+
+        response = request
+                .body(requestBody)
+                .when()
+                .put(endpoint);
+
+        logger.info("Response status code: {}", response.getStatusCode());
+        logger.info("Response body: {}", response.getBody().asString());
+    }
+
+    @Then("Response body should contain pagination data")
+    public void response_body_should_contain_pagination_data() {
+        logger.info("Step: Verifying response contains pagination data");
+
+        // Check if response has pagination structure
+        Map<String, Object> responseMap = response.jsonPath().getMap("$");
+        
+        // Pagination data might be in different formats, check both
+        if (responseMap.containsKey("pageable")) {
+            // Spring Boot Page format
+            Assert.assertNotNull(response.jsonPath().get("pageable"), "Response should have 'pageable' field");
+            Assert.assertNotNull(response.jsonPath().get("content"), "Response should have 'content' field");
+            Assert.assertNotNull(response.jsonPath().get("totalElements"), "Response should have 'totalElements' field");
+            Assert.assertNotNull(response.jsonPath().get("totalPages"), "Response should have 'totalPages' field");
+            logger.info("Pagination data verified (Spring Boot Page format)");
+        } else if (responseMap.containsKey("page")) {
+            // Custom pagination format
+            Assert.assertNotNull(response.jsonPath().get("page"), "Response should have 'page' field");
+            Assert.assertNotNull(response.jsonPath().get("size"), "Response should have 'size' field");
+            Assert.assertNotNull(response.jsonPath().get("totalElements"), "Response should have 'totalElements' field");
+            Assert.assertNotNull(response.jsonPath().get("totalPages"), "Response should have 'totalPages' field");
+            logger.info("Pagination data verified (custom format)");
+        } else {
+            Assert.fail("Response does not contain pagination data. Response: " + response.getBody().asString());
+        }
+    }
+
+    @Then("Response should contain at most {int} categories in content")
+    public void response_should_contain_at_most_categories(int maxSize) {
+        logger.info("Step: Verifying response contains at most {} categories", maxSize);
+
+        List<Object> categories = response.jsonPath().getList("content");
+        Assert.assertNotNull(categories, "Response should have 'content' field");
+        Assert.assertTrue(categories.size() <= maxSize,
+                "Expected at most " + maxSize + " categories but got " + categories.size());
+
+        logger.info("Category count verification passed. Found {} categories", categories.size());
+    }
+
+    @Then("All returned categories should contain {string} in name")
+    public void all_returned_categories_should_contain_in_name(String searchTerm) {
+        logger.info("Step: Verifying all categories contain '{}' in name", searchTerm);
+
+        List<Map<String, Object>> categories = response.jsonPath().getList("content");
+        Assert.assertNotNull(categories, "Response should have 'content' field");
+
+        for (Map<String, Object> category : categories) {
+            String name = (String) category.get("name");
+            Assert.assertTrue(name.toLowerCase().contains(searchTerm.toLowerCase()),
+                    "Category name '" + name + "' should contain '" + searchTerm + "'");
+        }
+
+        logger.info("Search result verification passed. All {} categories match '{}'",
+                categories.size(), searchTerm);
+    }
+
+    @Then("Response should contain only categories matching {string} in name")
+    public void response_should_contain_only_categories_matching_in_name(String searchTerm) {
+        logger.info("Step: Verifying response contains only categories matching '{}' in name", searchTerm);
+
+        List<Map<String, Object>> categories = response.jsonPath().getList("content");
+        
+        if (categories == null || categories.isEmpty()) {
+            logger.info("No categories returned in search results");
+            return;
+        }
+
+        for (Map<String, Object> category : categories) {
+            String name = (String) category.get("name");
+            Assert.assertTrue(name.toLowerCase().contains(searchTerm.toLowerCase()),
+                    "Category name '" + name + "' should contain '" + searchTerm + "'");
+        }
+
+        logger.info("Search validation passed. All {} categories contain '{}' in name",
+                categories.size(), searchTerm);
+    }
+
+    @Then("Response body should contain category object")
+    public void response_body_should_contain_category_object() {
+        logger.info("Step: Verifying response contains a category object");
+
+        // Verify response is an object (not an array)
+        Map<String, Object> category = response.jsonPath().getMap("$");
+        Assert.assertNotNull(category, "Response should be a category object");
+        Assert.assertTrue(category.containsKey("id"), "Category should have 'id' field");
+
+        logger.info("Response contains category object with id: {}", category.get("id"));
+    }
+
+    @Then("Category object should have id, name, parentName fields")
+    public void category_object_should_have_id_name_parentName_fields() {
+        logger.info("Step: Verifying category object has required fields");
+
+        Map<String, Object> category = response.jsonPath().getMap("$");
+
+        Assert.assertTrue(category.containsKey("id"), "Category should have 'id' field");
+        Assert.assertTrue(category.containsKey("name"), "Category should have 'name' field");
+        
+        // Check for either parentName or parentId
+        boolean hasParentField = category.containsKey("parentName") || category.containsKey("parentId");
+        Assert.assertTrue(hasParentField, "Category should have 'parentName' or 'parentId' field");
+
+        logger.info("Category object fields verified: id={}, name={}, parent field exists",
+                category.get("id"), category.get("name"));
+    }
 }
