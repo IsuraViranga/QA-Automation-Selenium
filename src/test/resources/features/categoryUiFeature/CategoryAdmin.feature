@@ -16,14 +16,6 @@ Feature: Category Admin Management
     And Success message "Category created successfully" should be displayed on the Category List page
     And Newly added category "Electronic" should appear in the category list
 
-  @TC_CAT_ADMIN_02 @Negative @Validation
-  Scenario: Verify admin cannot add category with short category name length
-    When Admin enters an invalid category name "AB" with less than 3 characters
-    And Admin clicks the Save button
-    Then Category should not be saved
-    And Error message "Category name must be between 3 and 10 characters" should be displayed in red color below the Category Name field
-    And Admin should remain on Add Category page
-
   @TC_CAT_ADMIN_03 @Negative @Validation
   Scenario: Verify admin cannot add category with empty category name field
     When Admin leaves Category Name field empty
@@ -67,6 +59,4 @@ Feature: Category Admin Management
     Examples:
       | categoryName | errorMessage                                         |
       | AB           | Category name must be between 3 and 10 characters   |
-      |              | Category name is required                            |
-      | A            | Category name must be between 3 and 10 characters   |
       | 12345678901  | Category name must be between 3 and 10 characters   |
