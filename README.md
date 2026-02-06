@@ -251,16 +251,6 @@ mvn allure:serve
 
 ## 📝 Test Case Mapping
 
-### Your Test Cases → Framework Mapping
-
-| Test ID | Test Case | Feature File | Step Definition | Page Object |
-|---------|-----------|--------------|-----------------|-------------|
-| TC_CAT_ADMIN_01 | Add main category | CategoryAdmin.feature | CategoryAdminSteps.java | CategoryPage.java |
-| TC_CAT_ADMIN_02 | Invalid short name | CategoryAdmin.feature | CategoryAdminSteps.java | CategoryPage.java |
-| TC_CAT_ADMIN_03 | Empty category name | CategoryAdmin.feature | CategoryAdminSteps.java | CategoryPage.java |
-| TC_CAT_ADMIN_04 | Add sub-category | CategoryAdmin.feature | CategoryAdminSteps.java | CategoryPage.java |
-| TC_CAT_ADMIN_05 | Cancel functionality | CategoryAdmin.feature | CategoryAdminSteps.java | CategoryPage.java |
-
 ## 🔧 Adding New Test Cases
 
 ### Step 1: Add Test Data (Data-Driven)
