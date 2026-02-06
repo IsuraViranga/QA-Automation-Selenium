@@ -16,10 +16,11 @@ public class Hooks {
 
     /**
      * Detects whether the current scenario is an API test
-     * by checking if the scenario name contains "/api/"
+     * by checking if the scenario has the @API tag
      */
     private boolean isApiTest(Scenario scenario) {
-        return scenario.getName().contains("/api/");
+        return scenario.getSourceTagNames().contains("@API") || 
+               scenario.getSourceTagNames().contains("@CategoryAPI");
     }
     
     @Before

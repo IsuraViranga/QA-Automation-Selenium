@@ -3,6 +3,7 @@ package com.qforce.pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.NoSuchElementException;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class CategoryPage extends BasePage {
     @FindBy(xpath = "//a[normalize-space()='Cancel']")
     private WebElement cancelButton;
     
-    @FindBy(xpath = "//div[contains(@class,'alert-success')]//span")
+    @FindBy(xpath = "//div[contains(@class,'alert-success')]")
     private WebElement successMessage;
     
     @FindBy(css = ".error-message")
@@ -1184,6 +1185,183 @@ public class CategoryPage extends BasePage {
             return true;
         } catch (Exception e) {
             logger.error("Error verifying parent filter", e);
+            return false;
+        }
+    }
+
+    // ==================== ADMIN-SPECIFIC METHODS ====================
+
+    /**
+     * Click Edit button for a specific category by ID
+     */
+    public void clickEditButtonForCategory(int categoryId) {
+        logger.info("Clicking Edit button for category ID: {}", categoryId);
+        try {
+            // Find the edit link for the specific category
+            String editLinkXPath = String.format("//td[text()='%d']/..//a[contains(@href, '/edit/%d')]", categoryId, categoryId);
+            WebElement editButton = driver.findElement(By.xpath(editLinkXPath));
+            click(editButton);
+            logger.info("Clicked Edit button for category ID: {}", categoryId);
+        } catch (Exception e) {
+            logger.error("Error clicking Edit button for category ID: {}", categoryId, e);
+            throw new RuntimeException("Failed to click Edit button for category " + categoryId, e);
+        }
+    }
+
+    /**
+     * Click Delete button for a specific category by ID
+     */
+    public void clickDeleteButtonForCategory(int categoryId) {
+        logger.info("Clicking Delete button for category ID: {}", categoryId);
+        try {
+            // Find the delete button for the specific category
+            String deleteButtonXPath = String.format("//td[text()='%d']/..//button[contains(@class, 'btn-outline-danger')]", categoryId);
+            WebElement deleteButton = driver.findElement(By.xpath(deleteButtonXPath));
+            click(deleteButton);
+            logger.info("Clicked Delete button for category ID: {}", categoryId);
+        } catch (Exception e) {
+            logger.error("Error clicking Delete button for category ID: {}", categoryId, e);
+            throw new RuntimeException("Failed to click Delete button for category " + categoryId, e);
+        }
+    }
+
+    /**
+     * Check if confirmation dialog appeared (JavaScript confirm)
+     */
+    public boolean isConfirmationDialogDisplayed() {
+        logger.info("Checking if confirmation dialog is displayed");
+        try {
+            // For JavaScript confirm dialogs, we need to check if alert is present
+            driver.switchTo().alert();
+            logger.info("Confirmation dialog is displayed");
+            return true;
+        } catch (Exception e) {
+            logger.info("No confirmation dialog displayed");
+            return false;
+        }
+    }
+
+    /**
+     * Accept confirmation dialog (click OK/Confirm)
+     */
+    public void acceptConfirmationDialog() {
+        logger.info("Accepting confirmation dialog");
+        try {
+            driver.switchTo().alert().accept();
+            logger.info("Confirmation dialog accepted");
+        } catch (Exception e) {
+            logger.error("Error accepting confirmation dialog", e);
+            throw new RuntimeException("Failed to accept confirmation dialog", e);
+        }
+    }
+
+    /**
+     * Dismiss confirmation dialog (click Cancel)
+     */
+    public void dismissConfirmationDialog() {
+        logger.info("Dismissing confirmation dialog");
+        try {
+            driver.switchTo().alert().dismiss();
+            logger.info("Confirmation dialog dismissed");
+        } catch (Exception e) {
+            logger.error("Error dismissing confirmation dialog", e);
+            throw new RuntimeException("Failed to dismiss confirmation dialog", e);
+        }
+    }
+
+    /**
+     * Get category name by ID from the table
+     */
+    public String getCategoryNameById(int categoryId) {
+        logger.info("Getting category name for ID: {}", categoryId);
+        try {
+            String nameXPath = String.format("//td[text()='%d']/../td[2]", categoryId);
+            WebElement nameCell = driver.findElement(By.xpath(nameXPath));
+            String name = getText(nameCell);
+            logger.info("Category ID {} has name: {}", categoryId, name);
+            return name;
+        } catch (Exception e) {
+            logger.error("Error getting category name for ID: {}", categoryId, e);
+            return null;
+        }
+    }
+
+    /**
+     * Get category parent by ID from the table
+     */
+    public String getCategoryParentById(int categoryId) {
+        logger.info("Getting category parent for ID: {}", categoryId);
+        try {
+            String parentXPath = String.format("//td[text()='%d']/../td[3]", categoryId);
+            WebElement parentCell = driver.findElement(By.xpath(parentXPath));
+            String parent = getText(parentCell);
+            logger.info("Category ID {} has parent: {}", categoryId, parent);
+            return parent;
+        } catch (Exception e) {
+            logger.error("Error getting category parent for ID: {}", categoryId, e);
+            return null;
+        }
+    }
+
+    /**
+     * Check if category exists in the list by ID
+     */
+    public boolean isCategoryInListById(int categoryId) {
+        logger.info("Checking if category ID {} exists in list", categoryId);
+        try {
+            // Wait for table to load (AJAX/JavaScript may populate data)
+            Thread.sleep(2000);
+            
+            // Try specific XPath first (tbody/tr/td)
+            String idXPath = String.format("//tbody/tr/td[normalize-space(text())='%d']", categoryId);
+            try {
+                driver.findElement(By.xpath(idXPath));
+                logger.info("Category ID {} found in list (primary XPath)", categoryId);
+                return true;
+            } catch (NoSuchElementException e) {
+                // Try fallback XPath if primary fails
+                String fallbackXPath = String.format("//td[text()='%d']", categoryId);
+                driver.findElement(By.xpath(fallbackXPath));
+                logger.info("Category ID {} found in list (fallback XPath)", categoryId);
+                return true;
+            }
+        } catch (Exception e) {
+            logger.warn("Category ID {} not found in list", categoryId);
+            return false;
+        }
+    }
+
+    /**
+     * Update category name on edit page (clears and enters new name)
+     */
+    public void updateCategoryName(String newName) {
+        logger.info("Updating category name to: {}", newName);
+        try {
+            categoryNameField.clear();
+            sendKeys(categoryNameField, newName);
+            logger.info("Category name updated to: {}", newName);
+        } catch (Exception e) {
+            logger.error("Error updating category name", e);
+            throw new RuntimeException("Failed to update category name", e);
+        }
+    }
+
+    /**
+     * Get current URL
+     */
+    public String getCurrentUrl() {
+        String url = driver.getCurrentUrl();
+        logger.info("Current URL: {}", url);
+        return url;
+    }
+
+    /**
+     * Check if success message is displayed
+     */
+    public boolean isSuccessMessageDisplayed() {
+        try {
+            return successMessage != null && successMessage.isDisplayed();
+        } catch (Exception e) {
             return false;
         }
     }
