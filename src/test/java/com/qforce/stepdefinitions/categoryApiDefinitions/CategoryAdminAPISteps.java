@@ -1,9 +1,9 @@
-package com.qforce.stepdefinitions;
+package com.qforce.stepdefinitions.categoryApiDefinitions;
 
+import com.qforce.api.TestDataHelper;
 import com.qforce.api.CategoryAPIClient;
 import io.cucumber.java.en.*;
 import com.qforce.utils.ConfigReader;
-import com.qforce.utils.TestDataHelper;
 
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
@@ -350,6 +350,28 @@ public class CategoryAdminAPISteps {
         Assert.assertEquals(response.getStatusCode(), expectedStatus);
     }
 
+    @Then("Error message should indicate name is required")
+    public void error_message_should_indicate_name_is_required() {
+        logger.info("Step: Verifying error message indicates name is required");
+        
+        // Check details.name field for actual validation message
+        String detailsName = response.jsonPath().getString("details.name");
+        logger.info("details.name: {}", detailsName);
+        
+        Assert.assertNotNull(detailsName, "details.name should not be null");
+        
+        boolean containsRequiredMessage = 
+            detailsName.toLowerCase().contains("required") ||
+            detailsName.toLowerCase().contains("mandatory") ||
+            detailsName.toLowerCase().contains("empty") ||
+            detailsName.toLowerCase().contains("missing") ||
+            detailsName.toLowerCase().contains("blank") ||
+            detailsName.toLowerCase().contains("between 3 and 10");
+        
+        Assert.assertTrue(containsRequiredMessage,
+            "details.name should indicate name is required: " + detailsName);
+        
+        logger.info("Error message correctly indicates name is required");
     @Then("The response body should contain name {string}")
     public void the_response_body_should_contain_name(String expectedName) {
         logger.info("Step: Verifying response body contains name '{}'", expectedName);

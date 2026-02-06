@@ -1,4 +1,4 @@
-package com.qforce.stepdefinitions;
+package com.qforce.stepdefinitions.categoryApiDefinitions;
 
 import com.qforce.utils.ConfigReader;
 import io.cucumber.datatable.DataTable;
