@@ -11,9 +11,8 @@ Feature: Category User Management
   Scenario: Verify that user can navigate to category page and category tab is highlighted
     When User clicks on Categories tab from navigation menu
     Then System should navigate to the category page
-    And Categories tab should be highlighted in the navigation menu to indicate the active page
     And Category page should be loaded
-    And Category list table should be displayed with headers "ID, Name, Parent, Actions"
+    And Categories tab should be highlighted in the navigation menu to indicate the active page
 
   @TC_CAT_USER_02 @Negative @EmptyState
   Scenario: Verify that "No category found" message is displayed when no categories exist

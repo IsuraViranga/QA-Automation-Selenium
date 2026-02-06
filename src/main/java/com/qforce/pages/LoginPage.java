@@ -22,11 +22,6 @@ public class LoginPage extends BasePage {
     @FindBy(css = "div.alert.alert-danger")
     private WebElement errorMessage;
     
-    // Alternative: Using By locators
-    // private By usernameLocator = By.name("username");
-    // private By passwordLocator = By.name("password");
-    // private By loginButtonLocator = By.xpath("//button[@type='submit' and text()='Login']");
-    
     /**
      * Navigate to login page
      */

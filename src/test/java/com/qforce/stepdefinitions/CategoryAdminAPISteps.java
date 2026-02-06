@@ -2,6 +2,15 @@ package com.qforce.stepdefinitions;
 
 import com.qforce.api.CategoryAPIClient;
 import io.cucumber.java.en.*;
+import com.qforce.utils.ConfigReader;
+import com.qforce.utils.TestDataHelper;
+
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.testng.Assert;
 import org.slf4j.Logger;
@@ -17,6 +26,302 @@ public class CategoryAdminAPISteps {
     public void admin_is_authenticated_via_api() {
         logger.info("Step: Authenticating Admin via API");
         categoryAPIClient.authenticateAdmin();
+    private String authToken;
+    private String baseUrl;
+    
+    public CategoryAdminAPISteps() {
+        // Initialize base URL from config
+        this.baseUrl = ConfigReader.getApiBaseUrl();
+        RestAssured.baseURI = this.baseUrl;
+        logger.info("API Base URL set to: {}", this.baseUrl);
+    }
+    
+    // ==================== BACKGROUND STEPS ====================
+    
+    @Given("Admin authentication token is set in request header")
+    public void admin_authentication_token_is_set_in_request_header() {
+        logger.info("Step: Setting up authentication token in request header");
+        
+        // Get admin credentials from config
+        String username = ConfigReader.getAdminUsername();
+        String password = ConfigReader.getAdminPassword();
+        
+        // Authenticate and get token
+        // Option 1: If your API uses Basic Auth
+        // authToken = "Basic " + java.util.Base64.getEncoder()
+        //     .encodeToString((username + ":" + password).getBytes());
+        
+        // Option 2: If your API uses Bearer token (login endpoint)
+        // Uncomment and modify this if you have a login endpoint
+        
+        response = given()
+            .contentType("application/json")
+            .body("{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}")
+            .when()
+            .post("/api/auth/login");
+        
+        authToken = "Bearer " + response.jsonPath().getString("token");
+        
+        logger.info("Authentication token set successfully");
+    }
+    
+    @Given("Admin is authenticated and has valid authentication token")
+    public void admin_is_authenticated_and_has_valid_authentication_token() {
+        logger.info("Step: Verifying admin has valid authentication token");
+        
+        // Initialize request with auth header
+        request = given()
+            .header("Authorization", authToken)
+            .contentType("application/json")
+            .accept("application/json");
+        
+        logger.info("Request initialized with authentication token");
+    }
+
+    @Given("At least one parent category exists in the system")
+    public void at_least_one_category_exists_in_the_system() {
+        logger.info("Step: Ensuring at least one category exists (using API)");
+        
+        // Use API to ensure at least 1 category exists
+        TestDataHelper.ensureMinimumCategories(1, "Tooi");
+        
+        // Verify count
+        int count = TestDataHelper.getCategoryCount();
+        logger.info("Category count after setup: {}", count);
+        
+        Assert.assertTrue(count >= 1, 
+            "Expected at least 1 category but found: " + count);
+    }
+    
+    // ==================== WHEN STEPS ====================
+    
+    @When("Admin sends POST request to {string} with valid category data:")
+    public void admin_sends_post_request_with_valid_category_data(String endpoint, DataTable dataTable) {
+        logger.info("Step: Sending POST request to {} with valid category data", endpoint);
+        
+        Map<String, String> data = dataTable.asMap(String.class, String.class);
+        String name = data.get("name");
+        String parent = data.get("parent");
+        
+        String requestBody;
+        if (parent == null || parent.equals("null")) {
+            // Main category (no parent)
+            requestBody = String.format("{\"name\":\"%s\"}", name);
+        } else {
+            // Sub-category with parent
+            requestBody = String.format(
+                "{\"name\":\"%s\",\"parent\":{\"id\":%s}}", 
+                name, parent
+            );
+        }
+        
+        logger.info("Request body: {}", requestBody);
+        
+        response = request
+            .body(requestBody)
+            .when()
+            .post(endpoint);
+        
+        logger.info("Response status code: {}", response.getStatusCode());
+        logger.info("Response body: {}", response.getBody().asString());
+    }
+    
+    @When("Admin sends POST request to {string} with valid sub-category data:")
+    public void admin_sends_post_request_with_valid_sub_category_data(String endpoint, DataTable dataTable) {
+        logger.info("Step: Sending POST request to {} with valid sub-category data", endpoint);
+        
+        Map<String, String> data = dataTable.asMap(String.class, String.class);
+        String name = data.get("name");
+        Integer parentId = TestDataHelper.getAnyParentCategoryId();
+        if (parentId == null) {
+            throw new RuntimeException("No parent category exists. Ensure at least one parent category is created.");
+        }
+        
+        String requestBody = String.format(
+            "{\"name\":\"%s\",\"parent\":{\"id\":%d}}", 
+            name, parentId
+        );
+
+        logger.info("Request body: {}", requestBody);
+        
+        response = request
+            .body(requestBody)
+            .when()
+            .post(endpoint);
+        
+        logger.info("Response status code: {}", response.getStatusCode());
+        logger.info("Response body: {}", response.getBody().asString());
+    }
+    
+    @When("Admin sends POST request to {string} with invalid name length:")
+    public void admin_sends_post_request_with_invalid_name_length(String endpoint, DataTable dataTable) {
+        logger.info("Step: Sending POST request to {} with invalid name length", endpoint);
+        
+        Map<String, String> data = dataTable.asMap(String.class, String.class);
+        String name = data.get("name");
+        String parentId = data.get("parentId");
+        
+        String requestBody;
+        if (parentId != null && !parentId.isEmpty()) {
+            requestBody = String.format(
+                "{\"name\":\"%s\",\"parent\":{\"id\":%s}}", 
+                name, parentId
+            );
+        } else {
+            requestBody = String.format("{\"name\":\"%s\"}", name);
+        }
+        
+        logger.info("Request body: {}", requestBody);
+        
+        response = request
+            .body(requestBody)
+            .when()
+            .post(endpoint);
+        
+        logger.info("Response status code: {}", response.getStatusCode());
+        logger.info("Response body: {}", response.getBody().asString());
+    }
+    
+    @When("Admin sends POST request to {string} with empty name:")
+    public void admin_sends_post_request_with_empty_name(String endpoint, DataTable dataTable) {
+        logger.info("Step: Sending POST request to {} with empty name", endpoint);
+        
+        Map<String, String> data = dataTable.asMap(String.class, String.class);
+        String name = data.get("name");
+        String parentId = data.get("parentId");
+
+        // Convert null to empty string for empty name test
+        if (name == null) {
+            name = "";
+        }
+        
+        String requestBody;
+        if (parentId != null && !parentId.isEmpty()) {
+            requestBody = String.format(
+                "{\"name\":\"%s\",\"parent\":{\"id\":%s}}", 
+                name, parentId
+            );
+        } else {
+            requestBody = String.format("{\"name\":\"%s\"}", name);
+        }
+        
+        logger.info("Request body: {}", requestBody);
+        
+        response = request
+            .body(requestBody)
+            .when()
+            .post(endpoint);
+        
+        logger.info("Response status code: {}", response.getStatusCode());
+        logger.info("Response body: {}", response.getBody().asString());
+    }
+
+    @When("Admin sends POST request to {string} with duplicate category data:")
+    public void admin_sends_post_request_with_duplicate_category_data(String endpoint, DataTable dataTable) {
+        //logger.info("Step: Sending POST request to {} with duplicate category data", endpoint);
+
+        // Get real existing sub-category from system
+        Map<String, Object> subCategory = TestDataHelper.getAnySubCategory();
+
+        if (subCategory == null) {
+            throw new RuntimeException("No sub-category exists to test duplicate scenario");
+        }
+
+        String name = subCategory.get("name").toString();
+        Integer parentId = (Integer) subCategory.get("parentId");
+
+        String requestBody = String.format(
+            "{\"name\":\"%s\",\"parent\":{\"id\":%d}}", 
+            name, parentId
+        );
+
+        logger.info("Duplicate request body: {}", requestBody);
+
+        response = request
+            .body(requestBody)
+            .when()
+            .post(endpoint);
+
+        logger.info("Response status code: {}", response.getStatusCode());
+        logger.info("Response body: {}", response.getBody().asString());
+    }
+    
+    // ==================== THEN STEPS ====================
+    
+    @Then("Response status code should be {int}")
+    public void response_status_code_should_be(int expectedStatusCode) {
+        logger.info("Step: Verifying response status code is {}", expectedStatusCode);
+        
+        int actualStatusCode = response.getStatusCode();
+        Assert.assertEquals(actualStatusCode, expectedStatusCode,
+            "Expected status code " + expectedStatusCode + " but got " + actualStatusCode);
+        
+        logger.info("Response status code verification passed: {}", actualStatusCode);
+    }
+    
+    @Then("Response body should contain created category data")
+    public void response_body_should_contain_created_category_data() {
+        logger.info("Step: Verifying response body contains created category data");
+        
+        // Verify response has category object
+        Assert.assertNotNull(response.getBody(), "Response body should not be null");
+        
+        // Verify essential fields exist
+        response.then()
+            .assertThat()
+            .body("id", notNullValue())
+            .body("name", notNullValue());
+        
+        logger.info("Response body contains category data");
+    }
+    
+    @Then("Response body field {string} should match {string}")
+    public void response_body_field_should_match(String fieldPath, String expectedValue) {
+        logger.info("Step: Verifying field '{}' matches '{}'", fieldPath, expectedValue);
+        
+        String actualValue = response.jsonPath().getString(fieldPath);
+        Assert.assertEquals(actualValue, expectedValue,
+            "Expected field '" + fieldPath + "' to be '" + expectedValue + "' but got '" + actualValue + "'");
+        
+        logger.info("Field '{}' matches expected value: {}", fieldPath, expectedValue);
+    }
+    
+    @Then("Response body field {string} should be {string}")
+    public void response_body_field_should_be(String fieldPath, String expectedValue) {
+        logger.info("Step: Verifying field '{}' equals '{}'", fieldPath, expectedValue);
+        
+        String actualValue = response.jsonPath().getString(fieldPath);
+        Assert.assertEquals(actualValue, expectedValue,
+            "Expected field '" + fieldPath + "' to be '" + expectedValue + "' but got '" + actualValue + "'");
+        
+        logger.info("Field '{}' equals expected value: {}", fieldPath, expectedValue);
+    }
+    
+    @Then("Response body should contain fields {string}, {string}, {string}")
+    public void response_body_should_contain_fields(String field1, String field2, String field3) {
+        logger.info("Step: Verifying response contains fields: {}, {}, {}", field1, field2, field3);
+        
+        response.then()
+            .assertThat()
+            .body(field1, notNullValue())
+            .body(field2, notNullValue())
+            .body("$", hasKey(field3));
+        
+        logger.info("All required fields are present in response");
+    }
+    
+    @Then("Response body should contain error object with status, error, message, and timestamp fields")
+    public void response_body_should_contain_error_object() {
+        logger.info("Step: Verifying response contains error object with required fields");
+        
+        response.then()
+            .assertThat()
+            .body("status", notNullValue())
+            .body("error", notNullValue())
+            .body("message", notNullValue())
+            .body("timestamp", notNullValue());
+        
+        logger.info("Error object structure verified");
     }
 
     @Given("Category with ID {int} exists")
