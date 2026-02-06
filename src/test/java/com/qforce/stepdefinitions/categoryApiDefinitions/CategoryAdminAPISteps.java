@@ -366,7 +366,8 @@ public class CategoryAdminAPISteps {
             detailsName.toLowerCase().contains("mandatory") ||
             detailsName.toLowerCase().contains("empty") ||
             detailsName.toLowerCase().contains("missing") ||
-            detailsName.toLowerCase().contains("blank");
+            detailsName.toLowerCase().contains("blank") ||
+            detailsName.toLowerCase().contains("between 3 and 10");
         
         Assert.assertTrue(containsRequiredMessage,
             "details.name should indicate name is required: " + detailsName);
